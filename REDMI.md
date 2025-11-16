@@ -1,96 +1,92 @@
-# Machine Test – Task Scheduler System (Django + React)
+# Machine Test – Restaurant POS System (Django + React)
 
 ## Overview
-This project implements a simplified Task Scheduler similar to Airflow / Celery.
-It includes:
-- Task creation with cron expressions
-- Cron preview (next 5 run times)
-- Automatic scheduling engine
-- Retry logic with exponential backoff
-- Task dependencies
-- Pause / Resume
-- Run Now
-- Execution history logs
-- React UI for task management
+A Point of Sale (POS) system for restaurant table management,
+order handling, and payment processing.
+
+This project meets all requirements mentioned in the assignment.
+
+---
 
 ## Tech Stack
-- Backend: Django, Django REST Framework, croniter
-- Frontend: React, Axios
-- Scheduler Worker: Django Custom Management Command
+- Backend: Django, Django REST Framework
+- Frontend: React (React Router, Axios)
+- Database: SQLite
 
 ---
 
 ## Features Implemented
 
-### ✔ Task Management
-- Create task with cron expression
-- Preview next 5 run times
-- Edit / Delete / Pause / Resume
-- Run task immediately
+### ✔ Table Management
+- List all tables with status (available / occupied)
+- When an order is created → table becomes occupied
+- After payment → table becomes available again
 
-### ✔ Cron Engine
-- Custom scheduler running via:  
-  `python manage.py run_scheduler`
-- Runs tasks when `next_run_at <= now`
-- Supports 5-second or 10-second polling
+### ✔ Menu Management
+- Menu items grouped by categories
+- Only available items listed
 
-### ✔ Retry Logic
-- On failure:
-  - Retry in 1 min → 2 min → 4 → 8 …
-- On success:
-  - retry_count resets to 0
-  - next_run_at recalculated using cron
+### ✔ Orders
+- Create new order with items
+- Add items to existing order
+- View full order details
+- Prevent creating new order for already-occupied table
+  (fetch active order automatically)
 
-### ✔ Task Dependencies
-- Parent task must succeed before child runs
-- Prevents circular dependency
+### ✔ Billing
+- Automatic calculation of:
+  - Subtotal
+  - 5% tax
+  - Final total
+- Bill generation endpoint
 
-### ✔ Logs
-- Every execution inserted into `TaskExecutionHistory`
-- Includes:
-  - status (success / failed / skipped / manual)
-  - timestamp
-  - log message
+### ✔ Payments
+- Cash / Card options
+- After payment:
+  - Order marked paid
+  - Table becomes available
+
+### ✔ Dashboard
+- List all active (unpaid) orders
+- Quick access to billing
 
 ---
 
 ## How to Run
 
 ### 1. Clone & Install
-git clone https://github.com/Vvk0105/task-schedule-system-server.git
+git clone https://github.com/Vvk0105/pos-system-server.git
 
 pip install -r requirements.txt
-
-### 2. Apply Migrations
 python manage.py migrate
 
-### 3. Run Backend Server
+### 2. Run Backend
 python manage.py runserver
 
 
-### 4. Run Scheduler Worker (separate terminal)
-python manage.py run_scheduler
-
-
-### 5. Run React Frontend
+### 3. Run Frontend
+git clone https://github.com/Vvk0105/pos-system-client.git
 
 npm i
 npm run dev
 
 
-## API Endpoints
+## Backend API Endpoints
 
-- POST `/api/create-task/`
-- GET `/api/tasks/`
-- POST `/api/tasks/:id/run-now/`
-- POST `/api/tasks/:id/pause/`
-- POST `/api/tasks/:id/resume/`
-- GET `/api/logs/`
-- GET `/api/cron-preview/`
+### Tables
+- GET `/api/tables/`
+- POST `/api/tables/:id/occupy/`
 
----
+### Menu
+- GET `/api/menu/`
 
-## Notes
-- Timezone set to Asia/Kolkata
-- Cron parsing using croniter
-- No unnecessary features added
+### Orders
+- POST `/api/orders/`
+- PUT `/api/orders/:id/add-items/`
+- GET `/api/orders/:id/`
+- GET `/api/orders/active/`
+- POST `/api/orders/:id/complete/`
+- GET `/api/orders/table/:table_id/active/` ← used by frontend
+
+### Payments
+- POST `/api/payments/`
