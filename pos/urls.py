@@ -15,6 +15,7 @@ urlpatterns = [
     path("orders/<int:order_id>/", views.get_order),
     path("orders/<int:order_id>/add-items/", views.add_items_to_order),
     path("orders/<int:order_id>/complete/", views.complete_order),
+    path("orders/table/<int:table_id>/active/", views.get_active_order_by_table),
 
     # Payments
     path("payments/", views.process_payment),

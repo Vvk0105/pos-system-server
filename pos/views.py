@@ -261,3 +261,11 @@ def process_payment(request):
         status=status.HTTP_201_CREATED,
     )
 
+@api_view(["GET"])
+def get_active_order_by_table(request, table_id):
+    try:
+        order = Order.objects.get(table_id=table_id, status="active")
+        return Response({"exists": True, "order_id": order.id})
+    except Order.DoesNotExist:
+        return Response({"exists": False})
+
